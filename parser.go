@@ -43,7 +43,7 @@ func NewBotFromReader(r io.Reader) (*Bot, error) {
 		menu.Buttons = []*Button{}
 		m.Find("a,button").Each(func(i int, b *goquery.Selection) {
 			btn := &Button{}
-			btn.ID = b.AttrOr("id", fmt.Sprintf("button%d", len(bot.Buttons) + 1))
+			btn.ID = b.AttrOr("id", fmt.Sprintf("button%d", len(bot.Buttons)+1))
 			btn.Title = b.Text()
 			btn.Href = b.AttrOr("href", "")
 			btn.Embed = b.AttrOr("embed", "false")
@@ -68,7 +68,7 @@ func NewBotFromReader(r io.Reader) (*Bot, error) {
 		fn := func(i int, n *goquery.Selection) {
 			input := &Input{}
 			input.NS = dialog.ID
-			input.ID = n.AttrOr("id", fmt.Sprintf("input%d", len(bot.Inputs) + 1))
+			input.ID = n.AttrOr("id", fmt.Sprintf("input%d", len(bot.Inputs)+1))
 			input.Name = n.AttrOr("name", input.ID)
 			input.Value = n.AttrOr("value", "")
 			input.If = n.AttrOr("if", "")
@@ -76,7 +76,7 @@ func NewBotFromReader(r io.Reader) (*Bot, error) {
 			input.Type = n.AttrOr("type", "text")
 			n.Find("option").Each(func(i int, o *goquery.Selection) {
 				btn := &Button{}
-				btn.ID = fmt.Sprintf("input-%s-%d", input.ID, len(bot.Inputs) + 1)
+				btn.ID = fmt.Sprintf("input-%s-%d", input.ID, len(bot.Inputs)+1)
 				btn.Href = fmt.Sprintf("input=%s&answer=yes&value=%s", input.ID, o.AttrOr("value", ""))
 				btn.Embed = "no"
 				btn.Title = o.Text()
@@ -95,6 +95,12 @@ func NewBotFromReader(r io.Reader) (*Bot, error) {
 				n.SetAttr("type", "options")
 				fn(i, n)
 			}
+		})
+		// fmt.Println(d.Find("div").Children().Get(1))
+		d.Find("div").Children().Each(func(i int, s *goquery.Selection) {
+			s.SetAttr("if", s.Parent().AttrOr("if", ""))
+			s.Parent().AfterSelection(s.Clone())
+			s.Remove()
 		})
 		bot.Dialogs[dialog.ID] = dialog
 		d.SetAttr("id", dialog.ID)

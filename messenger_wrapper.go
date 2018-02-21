@@ -121,8 +121,11 @@ func (m Messenger) Boot() {
 			return
 		}
 
-		// no input, no meaning ...
-		session.SendText("Sorry, but I cannot understand your input")
+		// from templates
+		err, found := session.MatchTemplate(msg.Text)
+		if !found {
+			session.SendText("Sorry, but I cannot understand your input")
+		}
 	})
 
 	// handling the postbacks "link/button" clicks

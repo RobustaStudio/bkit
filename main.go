@@ -7,6 +7,7 @@ import (
 )
 
 func main() {
+	println(RandInt(6))
 	file, err := os.Open("bot.html")
 	if err != nil {
 		log.Fatal(err)

@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 )
 
@@ -32,6 +33,30 @@ func NewMessengerSession(b *Bot, s SessionStore, w *messenger.Response, u messen
 		sender:   u,
 		bot:      b,
 	}
+}
+
+// MatchTemplate - find the macthed template and sends its content
+func (m *MessengerSession) MatchTemplate(txt string) (error, bool) {
+	var matched *goquery.Selection
+	m.bot.Document.Find("template").EachWithBreak(func(_ int, s *goquery.Selection) bool {
+		matches := s.AttrOr("matches", "")
+		if matches == "" && regexp.MustCompile(matches).MatchString(txt) {
+			picked := RandInt(int64(s.Children().Length()))
+			s.Children().EachWithBreak(func(i int, s *goquery.Selection) bool {
+				if int64(i) == picked {
+					matched = s
+					return false
+				}
+				return true
+			})
+			return false
+		}
+		return true
+	})
+	if matched != nil {
+		return m.SendNodesOf(matched), true
+	}
+	return nil, false
 }
 
 // SendText - send some text to the user
@@ -96,18 +121,18 @@ func (m *MessengerSession) SendNodesOf(s *goquery.Selection) error {
 	s.Children().EachWithBreak(func(i int, s *goquery.Selection) bool {
 		next := true
 		m.session.ExpectingUserInput = false
+		m.session.CurrentElement = s.AttrOr("id", fmt.Sprintf("node-%s-element-%d", parentId, i))
+		s.SetAttr("id", m.session.CurrentElement)
 		if strings.Contains(m.session.ElementsHistory, fmt.Sprintf(";%d;", i)) {
 			return true
 		}
-		m.session.CurrentElement = s.AttrOr("id", fmt.Sprintf("block-%s-input-%d", parentId, i))
 		m.session.ElementsHistory += fmt.Sprintf(";%d;", i)
-		s.SetAttr("id", m.session.CurrentElement)
 		ifexpr := s.AttrOr("if", "")
 		if (ifexpr != "" && EvalIfExpression(ifexpr, m.session.Data)) || ifexpr == "" {
 			switch strings.ToLower(goquery.NodeName(s)) {
 			case "media", "embed", "resource":
 				err = m.SendMedia(s.AttrOr("type", "image"), s.AttrOr("src", ""))
-			case "text", "label", "p", "span", "inline":
+			case "text", "label", "p", "span", "inline", "line":
 				err = m.SendText(GetExpressionValue(s.Text(), m.session.Data))
 			case "input", "select":
 				err = m.SendInput(m.bot.Inputs[s.AttrOr("id", "")])

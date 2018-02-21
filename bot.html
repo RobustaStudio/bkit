@@ -80,23 +80,25 @@
 
 			<label if="career_type == 'fulltime'">We have listed all the available vacancies for you on our website.</label>
 			<label if="career_type == 'internship'">We have listed all the available internships for you on our website.</label>
-			<label>Check them here! https://robustastudio.com</label>
+			<label if="career_type == 'fulltime' || career_type == 'internship'">Check them here! https://robustastudio.com</label>
 
-			<label>What’s your name?</label>
-			<input type="text" name="user_name"/>
+			<div if="career_type == 'freelance'">
+				<label>What’s your name?</label>
+				<input type="text" name="user_name"/>
 
-			<label>'Pleasure to meet you (' + user_name + '), how can we contact you?'</label>
-			<label>Great, how can we contact you?</label>
+				<label>'Pleasure to meet you (' + user_name + '), how can we contact you?'</label>
+				<label>Great, how can we contact you?</label>
 
-			<label>Please enter your E-mail</label>
-			<input name="user_email" type="text" />
+				<label>Please enter your E-mail</label>
+				<input name="user_email" type="text" />
 
-			<label>Please enter your phone number</label>
-			<input name="user_phone" type="text" />
+				<label>Please enter your phone number</label>
+				<input name="user_phone" type="text" />
 
-			<label>Tell us more about yourself!</label>
-			<label>We’d love to take a look at your work! Attach your portfolio!</label>
-			<input name="brief" type="file" />
+				<label>Tell us more about yourself!</label>
+				<label>We’d love to take a look at your work! Attach your portfolio!</label>
+				<input name="brief" type="file" />
+			</div>
 
 			<label>Your enthusiasm is inspiring! Looking forward to having you as part of our growing family!</label>
 		</form>
@@ -122,6 +124,7 @@
 			<input name="user_phone" type="text" />
 		</form>
 
+		<!-- about us -->
 		<div id="about-us">
 			<label>Who we are!</label>
 			<label>Want to know about us?</label>
@@ -136,9 +139,9 @@
 		</div>
 
 		<template match="aaaa">
-			<reply>
+			<div>
 				<!-- <embed> -->
-			</reply>
+			</div>
 		</template>
 	</body>
 </html>
