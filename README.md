@@ -24,34 +24,35 @@ Tags
 
 Demo
 =====
-> a very simple messenger bot that will collects the user info 
+> a very simple messenger bot that will collects the user info
 ```html
 <html>
 	<head>
         <!-- here we define the main-menu element, `main` is the id of the main menu -->
         <meta name="main-menu" content="main" />
-        
+
         <!-- whether the bkit server should verify the incoming request "from messenger itself" or not -->
         <meta name="messenger-verify" content="true" />
-        
+
         <!-- set the facebook app secret -->
-        <meta name="messenger-app-secret" content="1a1176bf562a6645b0d168d7b0a6088e" />
+        <meta name="messenger-app-secret" content="***************************" />
 
         <!-- the verify token in the bot settings in facebook messenger platform -->
-        <meta name="messenger-verify-token" content="123456" />
-        
-        <!-- the page token -->
-		<meta name="messenger-page-token" content="EAAZAouu3OSM0BAPDpcHxXFVXZArZBVD8dsp6YlRqcdU63AjoEzKwCjZBsTjQt8lWAedZBY3MheC1UBZBflD5SXj1EQ3SOxa1Dc8wZBLqeu8D2sQRtWpuhs4laeZBKFbwsZBnh0PtIyUTiI3jLceTd7gnpOkf43FoEjtZBsHHcvFwzhW5dCZB7Bw2ZB41" />
-        
+        <meta name="messenger-verify-token" content="*************" />
+
+        <!-- the facebook page token -->
+		<meta name="messenger-page-token" content="****************" />
+
         <!-- this content will be displayed when a new user opens the messenger window -->
-        <meta name="description" content="Welcome to robusta!, I’m ro-bot, not your average customer care chatbot! Check the menu"/>
+        <meta name="description" content="Hi, I'm your bot"/>
 	</head>
 	<body>
         <menu id="main" title="Under your command, Sir :)">
+            <!-- reset means "clear the current session if there were some old previous data" -->
 			<a href="#about" reset="true">About</a>
 			<a href="#collect" reset="true">Collect Data</a>
         </menu>
-        
+
         <div id="about">
             <text>I'm bkit, the bots-kit engine</text>
             <text>;)</text>
