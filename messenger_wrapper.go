@@ -111,7 +111,7 @@ func (m Messenger) Boot() {
 			ans := msg.Text
 			if input.Type == "file" {
 				if len(msg.Attachments) < 1 {
-					r.Text("Please upload a valid file")
+					r.Text("Please upload a valid file", messenger.MessagingType("RESPONSE"))
 					return
 				}
 				ans = msg.Attachments[0].Payload.URL
@@ -186,7 +186,7 @@ func (m Messenger) Boot() {
 		case "menu", "nav":
 			log.Println("[sending menu] has error?", session.SendBasicMenu(m.bot.Menus[trgt.AttrOr("id", "")]))
 		default:
-			r.Text("Sorry, I couldn't understand you")
+			r.Text("Sorry, I couldn't understand you", messenger.MessagingType("RESPONSE"))
 			log.Println("[unknown]", "undefined node type", needle.Get("trgt"))
 		}
 	})

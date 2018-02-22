@@ -70,12 +70,12 @@ func (m *MessengerSession) MatchTemplate(txt string) (error, bool) {
 
 // SendText - send some text to the user
 func (m *MessengerSession) SendText(text string) error {
-	return m.response.Text(text)
+	return m.response.Text(text, messenger.MessagingType("RESPONSE"))
 }
 
 // SendMedia - send a media data to the user
 func (m *MessengerSession) SendMedia(typ, src string) error {
-	return m.response.Attachment(messenger.AttachmentType(typ), src)
+	return m.response.Attachment(messenger.AttachmentType(typ), src, messenger.MessagingType("RESPONSE"))
 }
 
 // SendInput - send an input to t
@@ -92,7 +92,7 @@ func (m *MessengerSession) SendInput(input *Input) error {
 			cta.Payload = btn.Href
 			callToActions = append(callToActions, cta)
 		}
-		return m.response.ButtonTemplate("Select an option ...", &callToActions)
+		return m.response.ButtonTemplate("Select an option ...", &callToActions, messenger.MessagingType("RESPONSE"))
 	}
 	return nil
 }
@@ -116,7 +116,7 @@ func (m *MessengerSession) SendBasicMenu(menu *Menu) error {
 		}
 		callToActions = append(callToActions, cta)
 	}
-	return m.response.ButtonTemplate(menu.Title, &callToActions)
+	return m.response.ButtonTemplate(menu.Title, &callToActions, messenger.MessagingType("RESPONSE"))
 }
 
 // SendNodesOf - send the child nodes of the specified node

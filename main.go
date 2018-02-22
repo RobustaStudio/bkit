@@ -45,15 +45,17 @@ func main() {
 	// our global error channel
 	errchan := make(chan error)
 
-	// the TLS manager
-	m := &autocert.Manager{
-		Cache:      autocert.DirCache(*SSL_CACHE_DIR),
-		Prompt:     autocert.AcceptTOS,
-		HostPolicy: autocert.HostWhitelist(strings.Split(*SERVER_NAME, ",")...),
-	}
+	// the main handler
+	var handler http.Handler
 
 	// starts the HTTPS server if required
 	if *HTTPS_SERVER != "" {
+		m := &autocert.Manager{
+			Cache:      autocert.DirCache(*SSL_CACHE_DIR),
+			Prompt:     autocert.AcceptTOS,
+			HostPolicy: autocert.HostWhitelist(strings.Split(*SERVER_NAME, ",")...),
+		}
+		handler = m.HTTPHandler(nil)
 		s := &http.Server{
 			Addr:      *HTTPS_SERVER,
 			TLSConfig: &tls.Config{GetCertificate: m.GetCertificate},
@@ -66,7 +68,7 @@ func main() {
 	// starts the HTTP server if required
 	if *HTTP_SERVER != "" {
 		go (func() {
-			errchan <- http.ListenAndServe(*HTTP_SERVER, m.HTTPHandler(nil))
+			errchan <- http.ListenAndServe(*HTTP_SERVER, handler)
 		})()
 	}
 
