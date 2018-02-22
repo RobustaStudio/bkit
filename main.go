@@ -38,6 +38,9 @@ func main() {
 
 	// add a messenger handler
 	http.Handle("/messenger", NewMessenger(bot))
+	http.Handle("/", func(res http.ResponseWriter, req *http.Request){
+		res.Write([]byte("Hello, Bkit ;)"))
+	})
 
 	// our global error channel
 	errchan := make(chan error)
@@ -61,7 +64,7 @@ func main() {
 	// starts the HTTP server if required
 	if *HTTP_SERVER != "" {
 		go (func() {
-			errchan <- http.ListenAndServe(*HTTP_SERVER, nil)
+			errchan <- http.ListenAndServe(*HTTP_SERVER, m.HTTPHandler(nil))
 		})()
 	}
 
