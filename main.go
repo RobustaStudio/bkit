@@ -38,20 +38,22 @@ func main() {
 
 	// add a messenger handler
 	http.Handle("/messenger", NewMessenger(bot))
-	http.Handle("/", func(res http.ResponseWriter, req *http.Request){
+	http.HandleFunc("/", func(res http.ResponseWriter, req *http.Request) {
 		res.Write([]byte("Hello, Bkit ;)"))
 	})
 
 	// our global error channel
 	errchan := make(chan error)
 
+	// the TLS manager
+	m := &autocert.Manager{
+		Cache:      autocert.DirCache(*SSL_CACHE_DIR),
+		Prompt:     autocert.AcceptTOS,
+		HostPolicy: autocert.HostWhitelist(strings.Split(*SERVER_NAME, ",")...),
+	}
+
 	// starts the HTTPS server if required
 	if *HTTPS_SERVER != "" {
-		m := &autocert.Manager{
-			Cache:      autocert.DirCache(*SSL_CACHE_DIR),
-			Prompt:     autocert.AcceptTOS,
-			HostPolicy: autocert.HostWhitelist(strings.Split(*SERVER_NAME, ",")...),
-		}
 		s := &http.Server{
 			Addr:      *HTTPS_SERVER,
 			TLSConfig: &tls.Config{GetCertificate: m.GetCertificate},
