@@ -1,14 +1,20 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net/http"
 	"os"
 )
 
+var (
+	HTML_FILE   = flag.String("html", "", "the html bot file")
+	HTTP_SERVER = flag.String("http", ":8976", "the http listen address")
+)
+
 func main() {
-	println(RandInt(6))
-	file, err := os.Open("bot.html")
+	flag.Parse()
+	file, err := os.Open(*HTML_FILE)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -17,8 +23,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	m := NewMessenger(bot)
-
-	http.ListenAndServe(":8000", m)
+	http.ListenAndServe(*HTTP_SERVER, m)
 }

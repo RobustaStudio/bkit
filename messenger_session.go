@@ -40,7 +40,11 @@ func (m *MessengerSession) MatchTemplate(txt string) (error, bool) {
 	var matched *goquery.Selection
 	m.bot.Document.Find("template").EachWithBreak(func(_ int, s *goquery.Selection) bool {
 		matches := s.AttrOr("matches", "")
-		if matches == "" && regexp.MustCompile(matches).MatchString(txt) {
+		rgx, err := regexp.Compile(matches)
+		if err != nil {
+			return false
+		}
+		if rgx.MatchString(txt) {
 			picked := RandInt(int64(s.Children().Length()))
 			s.Children().EachWithBreak(func(i int, s *goquery.Selection) bool {
 				if int64(i) == picked {
@@ -54,7 +58,12 @@ func (m *MessengerSession) MatchTemplate(txt string) (error, bool) {
 		return true
 	})
 	if matched != nil {
-		return m.SendNodesOf(matched), true
+		switch goquery.NodeName(matched) {
+		case "div", "dialog", "form":
+			return m.SendNodesOf(matched), true
+		case "menu", "nav":
+			return m.SendBasicMenu(m.bot.Menus[matched.AttrOr("id", "")]), true
+		}
 	}
 	return nil, false
 }

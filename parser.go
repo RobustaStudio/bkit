@@ -96,7 +96,6 @@ func NewBotFromReader(r io.Reader) (*Bot, error) {
 				fn(i, n)
 			}
 		})
-		// fmt.Println(d.Find("div").Children().Get(1))
 		d.Find("div").Children().Each(func(i int, s *goquery.Selection) {
 			s.SetAttr("if", s.Parent().AttrOr("if", ""))
 			s.Parent().AfterSelection(s.Clone())

@@ -76,7 +76,7 @@ func (m Messenger) SendMainMenu(menu *Menu) error {
 	return m.client.CallToActionsSetting("existing_thread", callToActions)
 }
 
-// Setup the default handlers
+// Boot - Setup the default handlers
 func (m Messenger) Boot() {
 	// send the main menu
 	if err := m.SendMainMenu(m.GetMainMenu()); err != nil {
@@ -123,7 +123,8 @@ func (m Messenger) Boot() {
 
 		// from templates
 		err, found := session.MatchTemplate(msg.Text)
-		if !found {
+		if !found || err != nil {
+			log.Println("[template]", err)
 			session.SendText("Sorry, but I cannot understand your input")
 		}
 	})
