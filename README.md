@@ -82,7 +82,7 @@ Demo
 Installation
 ===============
 - Binaries ? go to [Releases Page](releases) and select your own distro/arch.
-- Docker ? `docker run --network host alash3al/bkit -html "demo.html" -https ":443" -http ":80" -server-name "bkit.domain.com"`
+- Docker ? `docker run -v $(pwd)/demo.html:/demo.html --network host alash3al/bkit -html /demo.html -https ":443" -http ":80" -server-name "bkit.domain.com"`
 - From Source ? `go get github.com/RobustaStudio/bkit`
 
 Credits
