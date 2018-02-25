@@ -4,9 +4,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
-)
 
-import (
 	"github.com/PuerkitoBio/goquery"
 )
 
@@ -68,6 +66,7 @@ func NewBotFromReader(r io.Reader) (*Bot, error) {
 		fn := func(i int, n *goquery.Selection) {
 			input := &Input{}
 			input.NS = dialog.ID
+			input.Title = n.AttrOr("title", "Fill/Choose ...")
 			input.ID = n.AttrOr("id", fmt.Sprintf("input%d", len(bot.Inputs)+1))
 			input.Name = n.AttrOr("name", input.ID)
 			input.Value = n.AttrOr("value", "")
@@ -86,7 +85,13 @@ func NewBotFromReader(r io.Reader) (*Bot, error) {
 			})
 			bot.Inputs[input.ID] = input
 			n.SetAttr("id", input.ID)
+			n.SetAttr("title", input.Title)
 		}
+		d.Find("div").Children().Each(func(i int, s *goquery.Selection) {
+			s.SetAttr("if", s.Parent().AttrOr("if", ""))
+			s.Parent().BeforeSelection(s.Clone())
+		})
+		d.Find("div").Remove()
 		d.Find("input,select").Each(func(i int, n *goquery.Selection) {
 			switch strings.ToLower(goquery.NodeName(n)) {
 			case "input":
@@ -95,11 +100,6 @@ func NewBotFromReader(r io.Reader) (*Bot, error) {
 				n.SetAttr("type", "options")
 				fn(i, n)
 			}
-		})
-		d.Find("div").Children().Each(func(i int, s *goquery.Selection) {
-			s.SetAttr("if", s.Parent().AttrOr("if", ""))
-			s.Parent().AfterSelection(s.Clone())
-			s.Remove()
 		})
 		bot.Dialogs[dialog.ID] = dialog
 		d.SetAttr("id", dialog.ID)

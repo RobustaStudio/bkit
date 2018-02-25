@@ -92,7 +92,7 @@ func (m *MessengerSession) SendInput(input *Input) error {
 			cta.Payload = btn.Href
 			callToActions = append(callToActions, cta)
 		}
-		return m.response.ButtonTemplate("Select an option ...", &callToActions, messenger.MessagingType("RESPONSE"))
+		return m.response.ButtonTemplate(input.Title, &callToActions, messenger.MessagingType("RESPONSE"))
 	}
 	return nil
 }

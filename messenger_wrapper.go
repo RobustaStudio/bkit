@@ -159,7 +159,7 @@ func (m Messenger) Boot() {
 
 		// the required action
 		needle, _ := url.ParseQuery(p.Payload)
-		log.Println("[postback]", needle)
+		log.Println("[postback]", needle, ", ShouldBeInput: ", session.IsExpectingUserInput())
 
 		// reset?
 		if needle.Get("btn") != "" && m.bot.Buttons[needle.Get("btn")] != nil && m.bot.Buttons[needle.Get("btn")].Reset {

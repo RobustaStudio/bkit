@@ -41,6 +41,7 @@ type Dialog struct {
 type Input struct {
 	NS      string
 	ID      string
+	Title   string
 	Name    string
 	Type    string
 	Options []*Button
