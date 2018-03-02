@@ -37,7 +37,7 @@ func NewMessenger(b *Bot) *Messenger {
 }
 
 // SendGreeting - send the greeting data/messages
-func (m Messenger) SendGreeting() error {
+func (m Messenger) SetGreeting() error {
 	if desc, ok := m.bot.Configs["description"]; ok {
 		return m.client.GreetingSetting(desc)
 	}
@@ -55,7 +55,7 @@ func (m Messenger) GetMainMenu() *Menu {
 }
 
 // SendMainMenu - sending the main messenger menu
-func (m Messenger) SendMainMenu(menu *Menu) error {
+func (m Messenger) SetMainMenu(menu *Menu) error {
 	if menu == nil {
 		return nil
 	}
@@ -73,19 +73,33 @@ func (m Messenger) SendMainMenu(menu *Menu) error {
 		}
 		callToActions = append(callToActions, cta)
 	}
-	return m.client.CallToActionsSetting("existing_thread", callToActions)
+	err := m.client.CallToActionsSetting("existing_thread", callToActions)
+	if err != nil {
+		return err
+	}
+	return m.client.CallToActionsSetting("new_thread", []messenger.CallToActionsItem{
+		{
+			Title:   "Get Started ^_^",
+			Type:    "postback",
+			Payload: "get_started",
+		},
+	})
+}
+
+func (m Messenger) GetWelcomeMenu() *Menu {
+	return m.bot.Menus[m.bot.Configs["welcome-menu"]]
 }
 
 // Boot - Setup the default handlers
 func (m Messenger) Boot() {
 	// send the main menu
-	if err := m.SendMainMenu(m.GetMainMenu()); err != nil {
+	if err := m.SetMainMenu(m.GetMainMenu()); err != nil {
 		log.Println(err)
 		return
 	}
 
 	// send greetings
-	if err := m.SendGreeting(); err != nil {
+	if err := m.SetGreeting(); err != nil {
 		log.Println(err)
 		return
 	}
@@ -146,12 +160,12 @@ func (m Messenger) Boot() {
 
 		// get started button ?
 		if p.Payload == "get_started" {
-			if err := m.SendGreeting(); err != nil {
-				log.Println("[greeting]", err)
+			if err := m.SetGreeting(); err != nil {
+				log.Println("[greeting-message]", err)
 				return
 			}
-			if err := session.SendBasicMenu(m.GetMainMenu()); err != nil {
-				log.Println("[menu]", err)
+			if err := session.SendBasicMenu(m.GetWelcomeMenu()); err != nil {
+				log.Println("[welcome-menu]", err)
 				return
 			}
 			return
@@ -187,7 +201,6 @@ func (m Messenger) Boot() {
 			log.Println("[sending menu] has error?", session.SendBasicMenu(m.bot.Menus[trgt.AttrOr("id", "")]))
 		default:
 			r.Text("Sorry, I couldn't understand you", messenger.MessagingType("RESPONSE"))
-			log.Println("[unknown]", "undefined node type", needle.Get("trgt"))
 		}
 	})
 }

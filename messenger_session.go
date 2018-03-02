@@ -84,15 +84,16 @@ func (m *MessengerSession) SendInput(input *Input) error {
 		return nil
 	}
 	if input.Type == "options" {
-		callToActions := []messenger.StructuredMessageButton{}
-		for _, btn := range input.Options {
-			cta := messenger.StructuredMessageButton{}
-			cta.Title = btn.Title
-			cta.Type = "postback"
-			cta.Payload = btn.Href
-			callToActions = append(callToActions, cta)
-		}
-		return m.response.ButtonTemplate(input.Title, &callToActions, messenger.MessagingType("RESPONSE"))
+		return m.SendInlineButtons(input.Title, input.Options)
+		// callToActions := []messenger.StructuredMessageButton{}
+		// for _, btn := range input.Options {
+		// 	cta := messenger.StructuredMessageButton{}
+		// 	cta.Title = btn.Title
+		// 	cta.Type = "postback"
+		// 	cta.Payload = btn.Href
+		// 	callToActions = append(callToActions, cta)
+		// }
+		// return m.response.ButtonTemplate(input.Title, &callToActions, messenger.MessagingType("RESPONSE"))
 	}
 	return nil
 }
@@ -101,6 +102,9 @@ func (m *MessengerSession) SendInput(input *Input) error {
 func (m *MessengerSession) SendBasicMenu(menu *Menu) error {
 	if menu == nil {
 		return nil
+	}
+	if menu.Inline {
+		return m.SendInlineButtons(menu.Title, menu.Buttons)
 	}
 	callToActions := []messenger.StructuredMessageButton{}
 	for _, btn := range menu.Buttons {
@@ -117,6 +121,19 @@ func (m *MessengerSession) SendBasicMenu(menu *Menu) error {
 		callToActions = append(callToActions, cta)
 	}
 	return m.response.ButtonTemplate(menu.Title, &callToActions, messenger.MessagingType("RESPONSE"))
+}
+
+// SendOptions - send a menu to the user
+func (m *MessengerSession) SendInlineButtons(title string, btns []*Button) error {
+	callToActions := []messenger.QuickReply{}
+	for _, btn := range btns {
+		cta := messenger.QuickReply{}
+		cta.Title = btn.Title
+		cta.ContentType = "text"
+		cta.Payload = fmt.Sprintf("trgt=%s&btn=%s", btn.Href[1:], btn.ID)
+		callToActions = append(callToActions, cta)
+	}
+	return m.response.TextWithReplies(title, callToActions, messenger.MessagingType("RESPONSE"))
 }
 
 // SendNodesOf - send the child nodes of the specified node

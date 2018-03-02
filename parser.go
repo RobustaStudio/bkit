@@ -29,16 +29,45 @@ func NewBotFromReader(r io.Reader) (*Bot, error) {
 	doc.Find("meta").Each(func(_ int, s *goquery.Selection) {
 		key, _ := s.Attr("name")
 		value, _ := s.Attr("content")
-
+		if key == "" {
+			return
+		}
 		bot.Configs[key] = value
+	})
+
+	// paginate the menu/navs buttons
+	// messanger maximum navigation links are 3 - 4, we will make them 3 by maximum.
+	doc.Find("menu,nav").Each(func(_ int, m *goquery.Selection) {
+		m.SetAttr("inline", m.AttrOr("inline", "false"))
+		if m.AttrOr("inline", "false") == "true" {
+			return
+		}
+		if m.AttrOr("id", "") == bot.Configs["main-menu"] {
+			return
+		}
+		p, cnt := m, 1
+		m.Find("a,button").Each(func(i int, b *goquery.Selection) {
+			if (i > 0) && (i%2 == 0) && m.Find("a,button").Length() > 3 {
+				newId := fmt.Sprintf("%s-%d", m.AttrOr("id", ""), cnt)
+				p.AppendHtml(fmt.Sprintf("<a href='#%s'>%s</a>", newId, "More"))
+				p.AfterHtml(fmt.Sprintf("<menu id='%s' title='%s'></menu>", newId, m.AttrOr("title", "")))
+				p = bot.Document.Find("#" + newId)
+				cnt++
+			}
+			if p != m {
+				p.AppendSelection(b.Clone())
+				b.Remove()
+			}
+		})
 	})
 
 	// populate the navs
 	doc.Find("menu,nav").Each(func(i int, m *goquery.Selection) {
 		menu := &Menu{}
 		menu.ID = m.AttrOr("id", fmt.Sprintf("menu%d", i))
-		menu.Title = m.AttrOr("title", "?")
+		menu.Title = m.AttrOr("title", "Choose")
 		menu.Buttons = []*Button{}
+		menu.Inline = (m.AttrOr("inline", "false") == "true")
 		m.Find("a,button").Each(func(i int, b *goquery.Selection) {
 			btn := &Button{}
 			btn.ID = b.AttrOr("id", fmt.Sprintf("button%d", len(bot.Buttons)+1))
@@ -46,13 +75,12 @@ func NewBotFromReader(r io.Reader) (*Bot, error) {
 			btn.Href = b.AttrOr("href", "")
 			btn.Embed = b.AttrOr("embed", "false")
 			btn.Reset = (b.AttrOr("reset", "false") == "true")
-
 			menu.Buttons = append(menu.Buttons, btn)
 			bot.Buttons[btn.ID] = btn
-
 			b.SetAttr("id", btn.ID)
 		})
 		m.SetAttr("id", menu.ID)
+		m.SetAttr("title", menu.Title)
 		bot.Menus[menu.ID] = menu
 	})
 

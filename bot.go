@@ -18,6 +18,7 @@ type Menu struct {
 	Title   string
 	If      string
 	Buttons []*Button
+	Inline  bool
 }
 
 type Button struct {

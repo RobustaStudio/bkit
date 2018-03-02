@@ -8,6 +8,7 @@ Features
 - Embedded a tiny `Expression Engine` to support simple scripting
 - Supports the following tags `meta, text, label, p, line, inline, span, embed, resource, media, div, menu, nav, dialog, form, template`
 - Supports custom replies from custom templates
+- Automatically paginate long `Menus` to be compatible with messenger `max-items-limit`
 
 Status
 ====
@@ -31,6 +32,9 @@ Demo
         <!-- here we define the main-menu element, `main` is the id of the main menu -->
         <meta name="main-menu" content="main" />
 
+	    <!-- here we define the welcome menu "after pressing get started button" -->
+		<meta name="welcome-menu" content="welcome" />
+
         <!-- whether the bkit server should verify the incoming request "from messenger itself" or not -->
         <meta name="messenger-verify" content="true" />
 
@@ -51,6 +55,11 @@ Demo
             <!-- reset means "clear the current session if there were some old previous data" -->
 			<a href="#about" reset="true">About</a>
 			<a href="#collect" reset="true">Collect Data</a>
+        </menu>
+
+        <menu id="welcome" inline="true">
+            <a href="#about">Click Here 1</a>
+            <a href="#about">Click Here 2</a>
         </menu>
 
         <div id="about">
