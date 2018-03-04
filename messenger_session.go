@@ -84,16 +84,15 @@ func (m *MessengerSession) SendInput(input *Input) error {
 		return nil
 	}
 	if input.Type == "options" {
-		return m.SendInlineButtons(input.Title, input.Options)
-		// callToActions := []messenger.StructuredMessageButton{}
-		// for _, btn := range input.Options {
-		// 	cta := messenger.StructuredMessageButton{}
-		// 	cta.Title = btn.Title
-		// 	cta.Type = "postback"
-		// 	cta.Payload = btn.Href
-		// 	callToActions = append(callToActions, cta)
-		// }
-		// return m.response.ButtonTemplate(input.Title, &callToActions, messenger.MessagingType("RESPONSE"))
+		callToActions := []messenger.StructuredMessageButton{}
+		for _, btn := range input.Options {
+			cta := messenger.StructuredMessageButton{}
+			cta.Title = btn.Title
+			cta.Type = "postback"
+			cta.Payload = btn.Href
+			callToActions = append(callToActions, cta)
+		}
+		return m.response.ButtonTemplate(input.Title, &callToActions, messenger.MessagingType("RESPONSE"))
 	}
 	return nil
 }
@@ -103,9 +102,9 @@ func (m *MessengerSession) SendBasicMenu(menu *Menu) error {
 	if menu == nil {
 		return nil
 	}
-	if menu.Inline {
-		return m.SendInlineButtons(menu.Title, menu.Buttons)
-	}
+	// if menu.Inline {
+	// 	return m.SendInlineButtons(menu.Title, menu.Buttons)
+	// }
 	callToActions := []messenger.StructuredMessageButton{}
 	for _, btn := range menu.Buttons {
 		cta := messenger.StructuredMessageButton{}

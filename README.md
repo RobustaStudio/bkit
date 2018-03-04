@@ -6,7 +6,7 @@ Features
 ====
 - Portable & Tiny
 - Embedded a tiny `Expression Engine` to support simple scripting
-- Supports the following tags `meta, text, label, p, line, inline, span, embed, resource, media, div, menu, nav, dialog, form, template`
+- Supports the following tags `meta, text, label, p, line, span, embed, resource, media, div, menu, nav, dialog, form, template`
 - Supports custom replies from custom templates
 - Automatically paginate long `Menus` to be compatible with messenger `max-items-limit`
 
@@ -57,7 +57,7 @@ Demo
 			<a href="#collect" reset="true">Collect Data</a>
         </menu>
 
-        <menu id="welcome" inline="true">
+        <menu id="welcome">
             <a href="#about">Click Here 1</a>
             <a href="#about">Click Here 2</a>
         </menu>

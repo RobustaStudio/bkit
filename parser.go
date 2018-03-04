@@ -38,18 +38,18 @@ func NewBotFromReader(r io.Reader) (*Bot, error) {
 	// paginate the menu/navs buttons
 	// messanger maximum navigation links are 3 - 4, we will make them 3 by maximum.
 	doc.Find("menu,nav").Each(func(_ int, m *goquery.Selection) {
-		m.SetAttr("inline", m.AttrOr("inline", "false"))
-		if m.AttrOr("inline", "false") == "true" {
-			return
-		}
 		if m.AttrOr("id", "") == bot.Configs["main-menu"] {
 			return
 		}
 		p, cnt := m, 1
+		more := bot.Configs["pager-more"]
+		if more == "" {
+			more = "More"
+		}
 		m.Find("a,button").Each(func(i int, b *goquery.Selection) {
 			if (i > 0) && (i%2 == 0) && m.Find("a,button").Length() > 3 {
 				newId := fmt.Sprintf("%s-%d", m.AttrOr("id", ""), cnt)
-				p.AppendHtml(fmt.Sprintf("<a href='#%s'>%s</a>", newId, "More"))
+				p.AppendHtml(fmt.Sprintf("<a href='#%s'>%s</a>", newId, more))
 				p.AfterHtml(fmt.Sprintf("<menu id='%s' title='%s'></menu>", newId, m.AttrOr("title", "")))
 				p = bot.Document.Find("#" + newId)
 				cnt++
