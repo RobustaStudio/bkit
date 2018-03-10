@@ -24,6 +24,7 @@ func main() {
 	flag.Parse()
 
 	// open the specified html file to be parsed
+	log.Println("Compiling from", *HTML_FILE, " ...")
 	file, err := os.Open(*HTML_FILE)
 	if err != nil {
 		log.Fatal(err)
@@ -61,6 +62,7 @@ func main() {
 			TLSConfig: &tls.Config{GetCertificate: m.GetCertificate},
 		}
 		go (func() {
+			log.Println("Start serving HTTPS traffic on", *HTTPS_SERVER)
 			errchan <- s.ListenAndServeTLS("", "")
 		})()
 	}
@@ -68,6 +70,7 @@ func main() {
 	// starts the HTTP server if required
 	if *HTTP_SERVER != "" {
 		go (func() {
+			log.Println("Start serving HTTP traffic on", *HTTP_SERVER)
 			errchan <- http.ListenAndServe(*HTTP_SERVER, handler)
 		})()
 	}

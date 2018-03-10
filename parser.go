@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"log"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
@@ -61,29 +62,6 @@ func NewBotFromReader(r io.Reader) (*Bot, error) {
 		})
 	})
 
-	// populate the navs
-	doc.Find("menu,nav").Each(func(i int, m *goquery.Selection) {
-		menu := &Menu{}
-		menu.ID = m.AttrOr("id", fmt.Sprintf("menu%d", i))
-		menu.Title = m.AttrOr("title", "Choose")
-		menu.Buttons = []*Button{}
-		menu.Inline = (m.AttrOr("inline", "false") == "true")
-		m.Find("a,button").Each(func(i int, b *goquery.Selection) {
-			btn := &Button{}
-			btn.ID = b.AttrOr("id", fmt.Sprintf("button%d", len(bot.Buttons)+1))
-			btn.Title = b.Text()
-			btn.Href = b.AttrOr("href", "")
-			btn.Embed = b.AttrOr("embed", "false")
-			btn.Reset = (b.AttrOr("reset", "false") == "true")
-			menu.Buttons = append(menu.Buttons, btn)
-			bot.Buttons[btn.ID] = btn
-			b.SetAttr("id", btn.ID)
-		})
-		m.SetAttr("id", menu.ID)
-		m.SetAttr("title", menu.Title)
-		bot.Menus[menu.ID] = menu
-	})
-
 	// populate forms
 	doc.Find("dialog,form").Each(func(i int, d *goquery.Selection) {
 		dialog := &Dialog{}
@@ -132,6 +110,54 @@ func NewBotFromReader(r io.Reader) (*Bot, error) {
 		bot.Dialogs[dialog.ID] = dialog
 		d.SetAttr("id", dialog.ID)
 	})
+
+	// populate the navs
+	doc.Find("menu,nav").Each(func(i int, m *goquery.Selection) {
+		menu := &Menu{}
+		menu.ID = m.AttrOr("id", fmt.Sprintf("menu%d", i))
+		menu.Title = m.AttrOr("title", "Choose ...")
+		menu.Buttons = []*Button{}
+		menu.Inline = (m.AttrOr("inline", "false") == "true")
+		m.Find("a,button").Each(func(i int, b *goquery.Selection) {
+			btn := &Button{}
+			btn.ID = b.AttrOr("id", fmt.Sprintf("button%d", len(bot.Buttons)+1))
+			btn.Title = b.Text()
+			btn.Href = b.AttrOr("href", "")
+			btn.Embed = b.AttrOr("embed", "false")
+			btn.Reset = (b.AttrOr("reset", "false") == "true")
+			menu.Buttons = append(menu.Buttons, btn)
+			bot.Buttons[btn.ID] = btn
+			b.SetAttr("id", btn.ID)
+		})
+		m.SetAttr("id", menu.ID)
+		m.SetAttr("title", menu.Title)
+		bot.Menus[menu.ID] = menu
+	})
+
+	// finding errors
+	doc.Find("menu,nav").Find("a,button").Each(func(i int, b *goquery.Selection) {
+		href := b.AttrOr("href", "")
+		title := b.AttrOr("title", b.Text())
+		btnErr := "Invalid `href` (href=" + href + ") attribute of the button(" + title + ") in the Menu/Nav(" + b.Parent().AttrOr("id", "") + ")"
+
+		if href == "" {
+			bot.Errors = append(bot.Errors, "[EMPTY] "+btnErr)
+		}
+
+		// log.Println(doc.Find(href).Length())
+
+		if string(href[0]) == "#" && doc.Find(href).Length() == 0 {
+			bot.Errors = append(bot.Errors, "[NOT FOUND] "+btnErr)
+		}
+	})
+
+	if len(bot.Errors) > 0 {
+		for _, msg := range bot.Errors {
+			log.Println("[CompilerError]", msg)
+		}
+	} else {
+		log.Println("No errors found ...")
+	}
 
 	return bot, nil
 }

@@ -11,6 +11,7 @@ type Bot struct {
 	Inputs   map[string]*Input
 	Menus    map[string]*Menu
 	Dialogs  map[string]*Dialog
+	Errors   []string
 }
 
 type Menu struct {
