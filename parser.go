@@ -140,11 +140,13 @@ func NewBotFromReader(r io.Reader) (*Bot, error) {
 		title := b.AttrOr("title", b.Text())
 		btnErr := "Invalid `href` (href=" + href + ") attribute of the button(" + title + ") in the Menu/Nav(" + b.Parent().AttrOr("id", "") + ")"
 
+		if string(href[0]) != "#" && !strings.HasPrefix(href, "http://") && !strings.HasPrefix(href, "https://") {
+			bot.Errors = append(bot.Errors, "[WrongID Format] "+btnErr)
+		}
+
 		if href == "" {
 			bot.Errors = append(bot.Errors, "[EMPTY] "+btnErr)
 		}
-
-		// log.Println(doc.Find(href).Length())
 
 		if string(href[0]) == "#" && doc.Find(href).Length() == 0 {
 			bot.Errors = append(bot.Errors, "[NOT FOUND] "+btnErr)
@@ -155,6 +157,7 @@ func NewBotFromReader(r io.Reader) (*Bot, error) {
 		for _, msg := range bot.Errors {
 			log.Println("[CompilerError]", msg)
 		}
+		log.Fatal("Please fix the above errors")
 	} else {
 		log.Println("No errors found ...")
 	}
